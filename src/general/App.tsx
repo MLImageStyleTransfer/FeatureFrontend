@@ -57,7 +57,7 @@ function App() {
     for (const [changeType, changeBody] of Object.entries(newAppStorage.params)) {
       if (changeBody) {
         //@ts-ignore
-        currentImage = await Api.contrastEditor({
+        currentImage = await Api[changeType as keyof Api]({
           image_code: currentImage,
           params: changeBody
         })
