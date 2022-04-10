@@ -28,7 +28,7 @@ export const Api = {
 
 const ApiHelper = {
   buildURL(apiURL: string): string {
-    return `${BASE_URL}${config.port}/api${apiURL}`
+    return `${BASE_URL}${config.port}${apiURL}`
   },
 
   apiFetch(url: string, body: RequestBodyType) {

@@ -14,13 +14,17 @@ const cloneSimpleObject = (object?: OnOfBody) => (
   }, {})
 )
 
-export const deepClone = (storage: AppStorage): AppStorage => ({
-  image: storage.image,
-  params: {
-    grayscaler: cloneSimpleObject(storage.params?.grayscaler) as GrayscalerBody,
-    cropper: cloneSimpleObject(storage.params?.cropper) as CropperBody,
-    contrastEditor: cloneSimpleObject(storage.params?.contrastEditor) as ContrastEditorBody,
-    colorfulnessEditor: cloneSimpleObject(storage.params?.colorfulnessEditor) as ColorfulnessEditorBody,
-    brightnessEditor: cloneSimpleObject(storage.params?.brightnessEditor) as BrightnessEditorBody,
+export const deepClone = (storage: AppStorage): AppStorage => {
+  const link = storage.params
+
+  return {
+    image: storage.image,
+    params: {
+      grayscaler: link?.grayscaler && cloneSimpleObject(link?.grayscaler) as GrayscalerBody,
+      cropper: link?.cropper && cloneSimpleObject(link?.cropper) as CropperBody,
+      contrastEditor: link?.contrastEditor && cloneSimpleObject(link?.contrastEditor) as ContrastEditorBody,
+      colorfulnessEditor: link?.colorfulnessEditor && cloneSimpleObject(link?.colorfulnessEditor) as ColorfulnessEditorBody,
+      brightnessEditor: link?.brightnessEditor && cloneSimpleObject(link?.brightnessEditor) as BrightnessEditorBody,
+    }
   }
-})
+}

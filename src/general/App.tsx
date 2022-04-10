@@ -51,21 +51,32 @@ function App() {
     })
   }
 
-  const transformationFlow = async () => {
-    let currentImage: string = clientStorage.getItem('loadedImage') || ''
+  const transformationFlow = async (newAppStorage: AppStorage) => {
+    let currentImage = (clientStorage.getItem('loadedImage') || '')
 
-    for (const [changeType, changeBody] of Object.entries(appStorage.params)) {
+    for (const [changeType, changeBody] of Object.entries(newAppStorage.params)) {
       if (changeBody) {
-        // currentImage = await Api[changeType as keyof Api]({
-        //   image_code: currentImage,
-        //   params: changeBody
-        // })
-        //   .then(response => {
-        //     if (!response.ok() || response.status !== 200) {
-        //       return currentImage
-        //     }
-        //     return response.text()
-        //   })
+        //@ts-ignore
+        currentImage = await Api.contrastEditor({
+          image_code: currentImage,
+          params: changeBody
+        })
+          //@ts-ignore
+          .then(response => {
+            if (!response.ok || response.status !== 200) {
+              return currentImage
+            }
+            return response.text()
+          })
+          //@ts-ignore
+          .then(data => {
+            console.log("OK")
+            return data
+          })
+          .catch(() => {
+            console.warn("Error")
+            return currentImage
+          })
       }
     }
 
@@ -73,7 +84,7 @@ function App() {
   }
 
   const transform = async (newAppStorage: AppStorage) => {
-    const newImage = await transformationFlow()
+    const newImage = await transformationFlow(newAppStorage)
     newAppStorage.image = await base64ToURL(newImage)
     setAppStorage(newAppStorage)
   }
