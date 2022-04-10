@@ -1,20 +1,48 @@
 import React from 'react'
 
+import {AppStorage} from '../../storage/types'
+import {deepClone} from '../../storage/helpers/deepClone'
+
 import style from './content-box.module.css'
+
+//@ts-ignore
+const ImageStyleManager = ({contrast}) => {
+  return (
+    <div>
+      <label className={style.contrast}> Контраст </label>
+      <input
+        type="text"
+        onChange={contrast}
+      />
+    </div>
+  )
+}
+
+
 
 type Props = {
   image?: string
   stopEdit: () => void
-  transform: () => void
-  checked: boolean
+  transform: (newAppStorage: AppStorage) => Promise<void>
+  appStorage: AppStorage
 }
 
 export default function ContentBox({
   image,
   stopEdit,
   transform,
-  checked,
+  appStorage,
 }: Props) {
+  let local: AppStorage = deepClone(appStorage)
+
+  const contrast = (event: any) => {
+    local.params.contrastEditor = {
+      contrast_factor: event?.target?.value as number
+    }
+
+    transform(local)
+  }
+
   return (
     <div className={style.ground}>
       <div className={style.content}>
@@ -26,15 +54,18 @@ export default function ContentBox({
               className={style.image}
           />}
         </div>
+
+        <ImageStyleManager contrast={contrast}/>
+
         <div className={style.manage}>
+
           <div className={`${style.customSize} input-group`}>
             <div className="input-group-prepend">
               <div className="input-group-text">
                 <input
-                  checked={checked}
+                  checked={local.params.grayscaler?.is_grayscaled}
                   type="checkbox"
                   aria-label="Checkbox for following text input"
-                  onChange={transform}
                 />
               </div>
             </div>
@@ -42,12 +73,14 @@ export default function ContentBox({
               Черно-белый фильтр
             </label>
           </div>
+
           <button
             onClick={stopEdit}
             className="btn btn-warning"
           >
             Отмена
           </button>
+
           <button
             onClick={() => {alert("Увы, пока что сохранение не работает...")}}
             className="btn btn-success"
@@ -55,6 +88,8 @@ export default function ContentBox({
             Сохранить
           </button>
         </div>
+
+
       </div>
     </div>
   )

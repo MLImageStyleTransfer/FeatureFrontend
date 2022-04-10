@@ -6,6 +6,7 @@ export type Config = {
   port: string
 }
 
-export type RequestType = {
-  image: string
+export type RequestBodyType = {
+  image_code: string
+  params?: Object
 }

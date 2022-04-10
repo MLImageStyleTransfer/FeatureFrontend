@@ -1,23 +1,29 @@
 import React, {useEffect, useState} from 'react'
-import './App.css'
+
+import {Api} from '../api/api'
 
 import ContentBox from '../components/content-box/content-box'
 import LoadBox from '../components/load-box/load-box'
-import {Api} from '../api/api'
 import {base64ToURL} from '../common/helpers/base64ToURL'
 import {blobToBase64} from '../common/helpers/URLToBase64'
 
-function App() {
-  const myStorage = window.localStorage
+import {AppStorage, ClientStorage} from '../storage/types'
+import {initialState} from '../storage/init'
 
+import './App.css'
+
+function App() {
+  const clientStorage: ClientStorage = window.localStorage
+  const [appStorage, setAppStorage] = useState<AppStorage>(initialState)
   const [isLoaded, setIsLoaded] = useState<boolean>(false)
-  const [image, setImage] = useState<string>('')
-  const [checked, setChecked] = useState<boolean>(false)
 
   useEffect(() => {
-    if (myStorage.hasOwnProperty('currImage')) {
+    if (clientStorage.hasOwnProperty('loadedImage')) {
       setIsLoaded(true)
-      setImage(myStorage.getItem('currImage') || '')
+      setAppStorage(oldAppStorage => ({
+        ...oldAppStorage,
+        image: clientStorage.getItem('loadedImage') || ''
+      }))
     }
   }, [])
 
@@ -26,65 +32,59 @@ function App() {
     let file = ref?.current.files[0];
     if (file) {
       const url = await blobToBase64(file)
-      setImage(url)
+      setAppStorage(oldAppStorage => ({
+        ...oldAppStorage,
+        image: url
+      }))
       setIsLoaded(() => {
-        myStorage.setItem('currImage', url)
-        myStorage.setItem('greyImage', '')
+        clientStorage.setItem('loadedImage', url)
         return true
       })
     }
   }
 
   const stopEdit = () => {
-    setImage('')
+    setAppStorage(initialState)
     setIsLoaded(() => {
-      myStorage.removeItem('currImage')
-      myStorage.removeItem('greyImage')
-      setChecked(false)
+      clientStorage.removeItem('loadedImage')
       return false
     })
   }
 
-  const grayscaleTransform = async () => {
-    if (myStorage.getItem('greyImage')?.length) {
-      return
+  const transformationFlow = async () => {
+    let currentImage: string = clientStorage.getItem('loadedImage') || ''
+
+    for (const [changeType, changeBody] of Object.entries(appStorage.params)) {
+      if (changeBody) {
+        // currentImage = await Api[changeType as keyof Api]({
+        //   image_code: currentImage,
+        //   params: changeBody
+        // })
+        //   .then(response => {
+        //     if (!response.ok() || response.status !== 200) {
+        //       return currentImage
+        //     }
+        //     return response.text()
+        //   })
+      }
     }
 
-    return Api.recolor({image: image})
-      .then(data => data.text())
-      .then(async (file) => {
-        const url = await base64ToURL(file)
-        myStorage.setItem('greyImage', url)
-        console.log("OK")
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    return currentImage
   }
 
-  const transform = async () => {
-    grayscaleTransform().then(() => {
-      if (!checked) {
-        setImage(() => {
-          setChecked(true)
-          return myStorage.getItem('greyImage') || ''
-        })
-      } else {
-        setImage(() => {
-          setChecked(false)
-          return myStorage.getItem('currImage') || ''
-        })
-      }
-    })
+  const transform = async (newAppStorage: AppStorage) => {
+    const newImage = await transformationFlow()
+    newAppStorage.image = await base64ToURL(newImage)
+    setAppStorage(newAppStorage)
   }
 
   return (
     <div className="App">
       {isLoaded
         ? <ContentBox stopEdit={stopEdit}
-                      image={image}
+                      image={appStorage.image}
                       transform={transform}
-                      checked={checked}/>
+                      appStorage={appStorage}/>
         : <LoadBox loadImage={loadImage}/>
       }
     </div>

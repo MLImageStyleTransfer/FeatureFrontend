@@ -1,21 +1,43 @@
 import {config} from './config'
 
-import {BASE_URL, RECOLOR_URL} from './constants'
+import {BASE_URL,URLProvider} from './constants'
 
-import {RequestType} from './types'
+import {RequestBodyType} from './types'
 
-export class Api {
-  public static recolor(request?: RequestType): Promise<any> {
-    return fetch(Api.buildURL(), {
+export const Api = {
+  grayscaler(request: RequestBodyType): Promise<any> {
+    return ApiHelper.apiFetch(ApiHelper.buildURL(URLProvider.GRAYSCALE_URL), request)
+  },
+
+  cropper(request: RequestBodyType): Promise<any> {
+    return ApiHelper.apiFetch(ApiHelper.buildURL(URLProvider.CROPPER_URL), request)
+  },
+
+  contrastEditor(request: RequestBodyType): Promise<any> {
+    return ApiHelper.apiFetch(ApiHelper.buildURL(URLProvider.CONTRAST_EDITOR_URL), request)
+  },
+
+  colorfulnessEditor(request: RequestBodyType): Promise<any> {
+    return ApiHelper.apiFetch(ApiHelper.buildURL(URLProvider.COLORFULNESS_EDITOR_URL), request)
+  },
+
+  brightnessEditor(request: RequestBodyType): Promise<any> {
+    return ApiHelper.apiFetch(ApiHelper.buildURL(URLProvider.BRIGHTNESS_EDITOR_URL), request)
+  },
+}
+
+const ApiHelper = {
+  buildURL(apiURL: string): string {
+    return `${BASE_URL}${config.port}/api${apiURL}`
+  },
+
+  apiFetch(url: string, body: RequestBodyType) {
+    return fetch(url, {
       method: 'POST',
       headers: {
-        'Content-type': 'image/jpeg'
+        'Content-type': 'application/json'
       },
-      body: JSON.stringify(request?.image)
+      body: JSON.stringify(body)
     })
-  }
-
-  private static buildURL(): string {
-    return `${BASE_URL}${config.port}${RECOLOR_URL}`
   }
 }
