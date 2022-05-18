@@ -1,0 +1,37 @@
+.contentTitle {
+    font-size: 32px;
+}
+
+.contentTitleWrapper {
+    margin: 40px 0 30px;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (max-width: 1100px) {
+    .contentTitle {
+        font-size: 28px;
+    }
+
+    .contentTitleWrapper {
+        margin: 30px 0 20px;
+        height: 40px;
+        border-bottom: 1px solid black;
+    }
+}
+
+@media (max-width: 700px) {
+    .contentTitle {
+        font-size: 14px;
+    }
+
+    .contentTitleWrapper {
+        margin: 20px 0 15px;
+        height: 30px;
+    }
+}

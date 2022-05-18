@@ -1,0 +1,21 @@
+.aboutFrameWrapper {
+    margin: auto;
+    width: 100%;
+}
+
+.aboutFrame {
+    width: 100%;
+    height: 68vh;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    z-index: 999999;
+
+    border: 1px solid grey;
+    border-radius: 10px;
+}
