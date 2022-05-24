@@ -1,0 +1,26 @@
+.machineLoadWrapper {
+    width: 280px;
+    height: 320px;
+
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.machineImage {
+    width: 260px;
+    height: 180px;
+    background: #5c7080;
+    border-radius: 10px;
+}
+
+.machineLoadButton {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.machineImageTitle {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 5px;
+}

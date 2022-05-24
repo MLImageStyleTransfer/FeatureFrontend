@@ -1,53 +1,28 @@
 import {AppStorage, ClientStorage} from "./storage/types";
 import React, {useEffect, useState} from "react";
 import {initialState} from "./storage/init";
-import {blobToBase64} from "../../common/helpers/URLToBase64";
 import {Api} from "./api/api";
 import {base64ToURL} from "../../common/helpers/base64ToURL";
 import ContentBox from "./components/content-box/content-box";
-import LoadBox from "./components/load-box/load-box";
 
-export const FeatureRoot = () => {
+type Props = {
+  imgKey: string
+  stopEdit: () => void
+}
+
+export const FeatureRoot = ({imgKey, stopEdit}: Props) => {
   const clientStorage: ClientStorage = window.localStorage
   const [appStorage, setAppStorage] = useState<AppStorage>(initialState)
-  const [isLoaded, setIsLoaded] = useState<boolean>(false)
 
   useEffect(() => {
-    if (clientStorage.hasOwnProperty('loadedImage')) {
-      setIsLoaded(true)
-      setAppStorage(oldAppStorage => ({
-        ...oldAppStorage,
-        image: clientStorage.getItem('loadedImage') || ''
-      }))
-    }
+    setAppStorage((old: AppStorage) => ({
+      ...old,
+      image: clientStorage.getItem(imgKey) as string,
+    }))
   }, [])
 
-  //@ts-ignore
-  const loadImage = async (ref) => {
-    let file = ref?.current.files[0];
-    if (file) {
-      const url = await blobToBase64(file)
-      setAppStorage(oldAppStorage => ({
-        ...oldAppStorage,
-        image: url
-      }))
-      setIsLoaded(() => {
-        clientStorage.setItem('loadedImage', url)
-        return true
-      })
-    }
-  }
-
-  const stopEdit = () => {
-    setAppStorage(initialState)
-    setIsLoaded(() => {
-      clientStorage.removeItem('loadedImage')
-      return false
-    })
-  }
-
   const transformationFlow = async (newAppStorage: AppStorage) => {
-    let currentImage = (clientStorage.getItem('loadedImage') || '')
+    let currentImage = clientStorage.getItem(imgKey) || ''
 
     for (const [changeType, changeBody] of Object.entries(newAppStorage.params)) {
       if (changeBody) {
@@ -84,15 +59,17 @@ export const FeatureRoot = () => {
     setAppStorage(newAppStorage)
   }
 
+  const stopEditHere = async () => {
+    localStorage.setItem(imgKey, appStorage.image)
+    stopEdit()
+  }
+
   return (
-    <div className="FeatureRoot">
-      {isLoaded
-        ? <ContentBox stopEdit={stopEdit}
-                      image={appStorage.image}
-                      transform={transform}
-                      appStorage={appStorage}/>
-        : <LoadBox loadImage={loadImage}/>
-      }
-    </div>
+    <ContentBox
+      stopEdit={stopEditHere}
+      image={appStorage.image}
+      transform={transform}
+      appStorage={appStorage}
+    />
   );
 }

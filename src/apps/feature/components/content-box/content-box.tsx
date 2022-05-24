@@ -6,19 +6,51 @@ import {deepClone} from '../../storage/helpers/deepClone'
 import style from './content-box.module.css'
 
 //@ts-ignore
-const ImageStyleManager = ({contrast}) => {
+const ImageStyleManager = ({contrast, bright}) => {
   return (
-    <div>
-      <label className={style.contrast}> Контраст </label>
-      <input
-        type="text"
-        onChange={contrast}
-      />
-    </div>
+    <>
+      <div className={style.settItem}>
+        <label className={style.contrast}> Контраст </label>
+        <input
+          type="range"
+          min="0"
+          max="200"
+          defaultValue="100"
+          onMouseUpCapture={contrast}
+        />
+      </div>
+      <div className={style.settItem}>
+        <label className={style.contrast}> Яркость </label>
+        <input
+          type="range"
+          min="0"
+          max="200"
+          defaultValue="100"
+          onMouseUpCapture={bright}
+        />
+      </div>
+      <div className={style.settItem}>
+        <label className={style.contrast}> Насыщенность </label>
+        <input
+          type="range"
+          min="0"
+          max="200"
+          defaultValue="100"
+        />
+      </div>
+      <div className={style.settItem}>
+        <label className={style.contrast}> Левый верхний угол </label>
+        <input type="range" min="0" max="200" style={{width: "60px", marginLeft: "5px"}} defaultValue="0"/>
+        <input type="range" min="0" max="200" style={{width: "60px", marginLeft: "5px"}} defaultValue="0"/>
+      </div>
+      <div className={style.settItem}>
+        <label className={style.contrast}> Правый нижний угол </label>
+        <input type="range" min="0" max="200" style={{width: "60px", marginLeft: "5px"}}  defaultValue="200"/>
+        <input type="range" min="0" max="200" style={{width: "60px", marginLeft: "5px"}}  defaultValue="200"/>
+      </div>
+    </>
   )
 }
-
-
 
 type Props = {
   image?: string
@@ -36,10 +68,19 @@ export default function ContentBox({
   let local: AppStorage = deepClone(appStorage)
 
   const contrast = (event: any) => {
-    local.params.contrastEditor = {
-      contrast_factor: event?.target?.value as number
-    }
+    local.params.contrastEditor = {contrast_factor: event?.target?.value as number}
+    transform(local)
+  }
 
+  const bright = (event: any) => {
+    local.params.brightnessEditor = {brightness_factor: event?.target?.value as number}
+    transform(local)
+  }
+
+  const blackWhite = () => {
+    local.params.grayscaler = {
+      is_grayscaled: !Boolean(local.params.grayscaler?.is_grayscaled)
+    }
     transform(local)
   }
 
@@ -55,7 +96,7 @@ export default function ContentBox({
           />}
         </div>
 
-        <ImageStyleManager contrast={contrast}/>
+        <ImageStyleManager contrast={contrast} bright={bright}/>
 
         <div className={style.manage}>
 
@@ -63,6 +104,7 @@ export default function ContentBox({
             <div className="input-group-prepend">
               <div className="input-group-text">
                 <input
+                  onChange={blackWhite}
                   checked={local.params.grayscaler?.is_grayscaled}
                   type="checkbox"
                   aria-label="Checkbox for following text input"
@@ -76,16 +118,9 @@ export default function ContentBox({
 
           <button
             onClick={stopEdit}
-            className="btn btn-warning"
-          >
-            Отмена
-          </button>
-
-          <button
-            onClick={() => {alert("Увы, пока что сохранение не работает...")}}
             className="btn btn-success"
           >
-            Сохранить
+            Завершить
           </button>
         </div>
 

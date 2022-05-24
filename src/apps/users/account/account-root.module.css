@@ -1,0 +1,28 @@
+.savedList {
+    width: 100%;
+    height: auto;
+    border: 1px solid grey;
+    border-radius: 15px;
+    margin-bottom: 50px;
+    margin-top: 20px;
+    padding: 30px;
+}
+
+.savedWrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 700px;
+    border-radius: 10px;
+    background: #b7cfe5;
+    padding: 10px;
+}
+
+.savedImage {
+    width: 200px;
+    height: 150px;
+    border-radius: 10px;
+}
+
+.saveButWrap {
+    padding: 50px;
+}

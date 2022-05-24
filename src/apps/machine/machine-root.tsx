@@ -1,89 +1,100 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 
-import './machine-root.css'
-import {blobToBase64} from "../../common/helpers/URLToBase64";
 import {base64ToURL} from "../../common/helpers/base64ToURL";
+import LoadBox from "./components/load-box/load-box";
+import style from "./components/load-box/load-box.module.css";
+import {styleTransferProcess} from "./api/api";
+
+import './machine-root.css';
+
+export const STYLE = "styleImageKey";
+export const TARGET = "targetImageKey";
 
 export function MachineRoot() {
-  const [chosen1, setChosen1] = useState(0)
-  const [chosen2, setChosen2] = useState(0)
+  const imageS = window.localStorage.getItem(STYLE) as string
+  const imageT = window.localStorage.getItem(TARGET) as string
 
-  const [image1, setImage1] = useState("")
-  const [image2, setImage2] = useState("")
+  const [chosen1, setChosen1] = useState(Boolean(imageT))
+  const [chosen2, setChosen2] = useState(Boolean(imageS))
   const [srcFinal, setSrcFinal] = useState("")
 
-  const ref1 = useRef(null)
-  const ref2 = useRef(null)
-
-  const checker1 = async () => {
-    const cond: boolean = Boolean((ref1?.current || {files: [false]}).files[0])
-    setChosen1(cond ? 1 : 0)
-    //@ts-ignore
-    let file = ref1?.current.files[0];
-    if (cond && file) {
-      const url = await blobToBase64(file)
-      setImage1(url)
-    }
-  }
-
-  const checker2 = async () => {
-    const cond: boolean = Boolean((ref2?.current || {files: [false]}).files[0])
-    setChosen2(cond ? 1 : 0)
-    //@ts-ignore
-    let file = ref2?.current.files[0];
-    if (cond && file) {
-      const url = await blobToBase64(file)
-      setImage2(url)
-    }
-  }
+  const clb1 = (hasImage: boolean) => setChosen1(hasImage)
+  const clb2 = (hasImage: boolean) => setChosen2(hasImage)
 
   const styleTransfer = async () => {
-    const resImageCode = await fetch('http://127.0.0.1:5555/style_transfer/', {
-        method: "POST",
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          content_image_code: image1,
-          style_image_code: image2,
-          params: {
-            transfer_coefficient: 1
-          }
-        })
-      }).then(response => {
-        return response.json()
-      }).then(data => {
-        console.log(`[--OK--] StyleTransfer\n`)
-        return data.image_code
-      }).catch(error => {
-        console.warn(error)
-      })
-
+    const resImageCode = await styleTransferProcess(imageT, imageS)
     const image = await base64ToURL(resImageCode)
     setSrcFinal(image)
   }
 
-  const condition: boolean = (chosen1 + chosen2 === 2)
+  const fullReset = () => {
+    window.localStorage.setItem(TARGET, "")
+    window.localStorage.setItem(STYLE, "")
+    clb1(false)
+    clb2(false)
+    window.location.pathname = '/'
+  }
+
+  const addImageToUserList = () => {
+    const was = window.localStorage.getItem("myStorage") as string
+    const has = [...JSON.parse(was), srcFinal]
+    window.localStorage.setItem("myStorage", JSON.stringify(has))
+    alert("Картинка добавлена!")
+    window.location.pathname = '/profile/man'
+  }
+
+  const condition: boolean = (chosen1 && chosen2)
+  const condition2: boolean = Boolean(srcFinal)
 
   return (
-    <fieldset title="LOAD FORM">
+    <>
       <div className="loadFieldSet">
-        <input onInput={checker1} type="file" ref={ref1}/>
-        <input onInput={checker2} type="file" ref={ref2}/>
-        <button
-          onClick={styleTransfer}
-          className={`btn ${condition ? 'btn-primary' : 'btn-secondary'}`}
-          disabled={!condition}
-        >
-          Перенести стиль
-        </button>
+        <LoadBox imgKey={TARGET} text="Ваша картинка" imageMess={clb1} key={Math.random()}/>
+        <LoadBox imgKey={STYLE} text="Изображение стиля" imageMess={clb2} key={Math.random()}/>
+        <div className="machineFinalWrapper">
+          <div className="machineFinalContent">
+            <div className={style.machineImageTitle}>Результат</div>
+            <img src={srcFinal || undefined} className="machineFinalImage" alt=""/>
+          </div>
+          <div className="machineFinalPanel">
+            <button
+              onClick={fullReset}
+              className={'btn btn-warning'}
+            >
+              Сбросить все
+            </button>
+
+            <button
+              onClick={styleTransfer}
+              className={`btn ${condition ? 'btn-primary' : 'btn-secondary'}`}
+              disabled={!condition}
+            >
+              Перенести стиль
+            </button>
+
+            <button
+              onClick={addImageToUserList}
+              className={`btn ${condition2 ? 'btn-primary' : 'btn-secondary'}`}
+              disabled={!condition2}
+            >
+              Добавить себе
+            </button>
+
+            <a
+              className={`btn ${condition2 ? 'btn-success' : 'btn-secondary'}`}
+              href={srcFinal}
+              download={true}
+            >
+              Скачать
+            </a>
+
+            <div>
+              <label> Степень переноса </label>
+              <input type="range" min="0" max="200" defaultValue="200"/>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="imageWrapSt">
-        <img
-          src={srcFinal}
-          alt="Ожидайте переноса..."
-        />
-      </div>
-    </fieldset>
+    </>
   )
 }

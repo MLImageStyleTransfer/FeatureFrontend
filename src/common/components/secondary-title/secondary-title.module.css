@@ -1,0 +1,20 @@
+.secondaryTitle {
+    font-size: 25px;
+    width: 100%;
+    font-weight: bold;
+    margin: 10px 5px;
+}
+
+@media (max-width: 1100px) {
+    .secondaryTitle {
+        font-size: 18px;
+        margin: 8px 4px;
+    }
+}
+
+@media (max-width: 700px) {
+    .secondaryTitle {
+        font-size: 12px;
+        margin: 7px 3px;
+    }
+}
