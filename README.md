@@ -1,17 +1,17 @@
 # Feature Frontend
 
 ### Setup 
-```
+```bash
 npm install
 ```
 
 ### Run service
-```
+```bash
 npm run start
 ```
 
 ### Resource sharing (Linux)
-```
+```bash
 npx http-server -p 3010 ./src/common/static/resources/
 ```
 
@@ -20,12 +20,12 @@ npx http-server -p 3010 ./src/common/static/resources/
 `.env` file contains config
 
 Example
-```
+```dotenv
 PORT=3000
 ```
 
 ### Architecture (src general points only)
-```
+```text
 .
 ├── apps
 │   ├── feature
