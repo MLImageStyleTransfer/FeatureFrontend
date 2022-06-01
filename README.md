@@ -1,17 +1,80 @@
 # Feature Frontend
 
-### Установка
+### Setup 
 ```
 npm install
 ```
 
-### Запуск
+### Run service
 ```
 npm run start
 ```
 
-### Подключение ресурсов для работы раздела об алгоритме (Linux)
+### Resource sharing (Linux)
 ```
-cd src/common/static/resources/
-npx http-server -p 3010
+npx http-server -p 3010 ./src/common/static/resources/
+```
+
+### Environment (TODO)
+
+`.env` file contains config
+
+Example
+```
+PORT=3000
+```
+
+### Architecture (src general points only)
+```
+.
+├── apps
+│   ├── feature
+│   │   ├── api
+│   │   ├── components
+│   │   │   └── content-box
+│   │   ├── feature-root.css
+│   │   ├── feature-root.tsx
+│   │   └── storage
+│   ├── machine
+│   │   ├── api
+│   │   ├── components
+│   │   │   └── load-box
+│   │   ├── machine-root.css
+│   │   └── machine-root.tsx
+│   └── users
+│       ├── account
+│       │   ├── account-root.module.css
+│       │   └── account-root.tsx
+│       ├── api
+│       ├── sign-up
+│       │   ├── sign-up-root.tsx
+│       │   └── sign-up.module.css
+│       └── sing-in
+│           └── sign-in-root.tsx
+├── common
+│   ├── api
+│   ├── components
+│   │   ├── about
+│   │   ├── content-title
+│   │   ├── content-wrapper
+│   │   ├── header
+│   │   ├── home
+│   │   ├── not-found
+│   │   └── secondary-title
+│   ├── helpers
+│   │   ├── URLToBase64.ts
+│   │   ├── base64ToURL.ts
+│   │   └── createBlob.ts
+│   ├── history
+│   └── static
+│       ├── images
+│       └── resources
+├── general
+│   ├── App.css
+│   └── App.tsx
+├── index.css
+├── index.tsx
+├── react-app-env.d.ts
+├── reportWebVitals.ts
+└── setupTests.ts
 ```
